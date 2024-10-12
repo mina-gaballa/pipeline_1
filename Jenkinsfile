@@ -1,20 +1,16 @@
 pipeline {
     agent any  
-    
-    environment {
-        // Define Docker Hub credentials
-        DOCKER_HUB_CREDENTIALS = credentials('mina2030')
-    }
-    
 
     stages {
         stage('Build') {
             steps {
                 script {
                     // Log in to Docker Hub using the credentials
-                    sh """
-                        echo \$DOCKER_HUB_CREDENTIALS_PSW | docker login -u \$DOCKER_HUB_CREDENTIALS_USR --password-stdin
-                    """
+                    withCredentials([usernamePassword(credentialsId: 'mina2030', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                            echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin
+                        """
+                    }
                     // Build the Docker image
                     sh 'docker build -t minagaballa/nginx:v1 .'
                 }
